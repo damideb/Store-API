@@ -3,11 +3,10 @@ const Category = require("../models/Category");
 const Product = require("../models/Product");
 
 const getProduct = async (req, res) => {
-
-    let filter ={}
-    if(req.query.categories){
-        filter = {category:req.query.categories.split(',')}
-    }
+  let filter = {};
+  if (req.query.categories) {
+    filter = { category: req.query.categories.split(",") };
+  }
   const productList = await Product.find(filter).populate("category");
 
   if (!productList) {
@@ -35,7 +34,7 @@ const createProduct = async (req, res) => {
     throw new NotFoundError(`No category with ${req.body.category} found`);
   }
 
-  try {
+
     let product = new Product({
       name: req.body.name,
       description: req.body.description,
@@ -57,11 +56,8 @@ const createProduct = async (req, res) => {
     }
 
     res.json({ product });
-  } catch (error) {
-    console.error(error);
-    throw new BadRequestError("error creating product");
   }
-};
+
 
 const updateProduct = async (req, res) => {
   const id = req.params.id;
@@ -111,10 +107,21 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const getProductCount = async (req, res) => {
+  const productCount = await Product.countDocuments((count) => count);
+
+  if (!productCount) {
+    return res.status(500).json({ success: false });
+  }
+
+  res.json({ success: true, count: productCount });
+};
+
 module.exports = {
   createProduct,
   getProduct,
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  getProductCount,
 };

@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const authenticateUser = require("../middleware/authentication");
+const adminAuth = require("../middleware/adminAuth");
 
 const {
   getProduct,
@@ -8,24 +10,20 @@ const {
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  getProductCount,
 } = require("../controllers/product");
 
-router.route("/").post(createProduct).get(getProduct);
+router
+  .route("/")
+  .post(authenticateUser, adminAuth, createProduct)
+  .get(getProduct);
 router
   .route("/:id")
   .get(getSingleProduct)
-  .put(updateProduct)
-  .delete(deleteProduct);
+  .put(authenticateUser, adminAuth, updateProduct)
+  .delete(authenticateUser, adminAuth, deleteProduct);
 
-router.route("/get/count").get(async (req, res) => {
-  const productCount = await Product.countDocuments((count) => count);
-
-  if (!productCount) {
-    return res.status(500).json({ success: false });
-  }
-
-  res.json({ success: true, count: productCount });
-});
+router.route("/get/count").get(authenticateUser, getProductCount);
 
 // router.route("/get/featured").get(async (req, res) => {
 //   const products = await Product.find({ isFeatured: true });

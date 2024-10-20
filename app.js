@@ -39,10 +39,12 @@ app.options('*', cors())
 // app.use(xss())
 
 // routes
-app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/user", usersRouter);
-app.use("/api/v1/orders", ordersRouter);
+app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/category", categoryRouter);
+app.use(authenticateUser);
+app.use("/api/v1/orders", ordersRouter);
+
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

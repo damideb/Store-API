@@ -47,7 +47,7 @@ const updateCategory = async (req, res) => {
   });
 
   if (!category) {
-    throw new NotFoundError(`No category cannot be updated`);
+    throw new NotFoundError(`No category found`);
   }
 
   res.status(200).send({ category });

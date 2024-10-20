@@ -13,7 +13,10 @@ const verifyJWT = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // const user = User.findById(decoded.userId).select('-password'); // find user by id and remove the password field
-    req.user = { userId: decoded.userId, name: decoded.name }; // send this obj to the next middleware
+    req.user = {
+      userId: decoded.userId,
+      isAdmin: decoded.isAdmin,
+    }; // send this obj to the next middleware
     next();
   } catch (err) {
     throw new UnauthenticatedError("Authentication failed");
