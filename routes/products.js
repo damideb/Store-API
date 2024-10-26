@@ -4,6 +4,7 @@ const Product = require("../models/Product");
 const authenticateUser = require("../middleware/authentication");
 const adminAuth = require("../middleware/adminAuth");
 
+
 const {
   getProduct,
   createProduct,
@@ -12,6 +13,7 @@ const {
   deleteProduct,
   getProductCount,
 } = require("../controllers/product");
+
 
 router
   .route("/")

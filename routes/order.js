@@ -6,7 +6,7 @@ const router = express.Router();
 router.get(`/`, async (req, res) => {
   const orderList = await Order.find()
     .populate("user", "name")
-    .sort({ dateOrdered: -1 });
+    .sort({ dateOrdered: -1 }); // newest to oldest
 
   if (!orderList) {
     res.status(500).json({ success: false });
@@ -32,6 +32,7 @@ router.get(`/:id`, async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  const userid = req.user.userId;
   const orderItemsIds = Promise.all(
     req.body.orderItems.map(async (orderItem) => {
       let newOrderItem = new OrderItem({
@@ -69,7 +70,7 @@ router.post("/", async (req, res) => {
     phone: req.body.phone,
     status: req.body.status,
     totalPrice: totalPrice,
-    user: req.body.user,
+    user: userid,
   });
   order = await order.save();
 
@@ -93,11 +94,12 @@ router.put("/:id", async (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
-  Order.findByIdAndRemove(req.params.id)
+  Order.findByIdAndDelete(req.params.id)
     .then(async (order) => {
+      // to delete orderitems after deleting the order
       if (order) {
         await order.orderItems.map(async (orderItem) => {
-          await OrderItem.findByIdAndRemove(orderItem);
+          await OrderItem.findByIdAndDelete(orderItem);
         });
         return res
           .status(200)
@@ -136,8 +138,9 @@ router.get(`/get/count`, async (req, res) => {
   });
 });
 
-router.get(`/get/userorders/:userid`, async (req, res) => {
-  const userOrderList = await Order.find({ user: req.params.userid })
+router.get(`/get/userorders`, async (req, res) => {
+  const userid = req.user.userId;
+  const userOrderList = await Order.find({ user: userid })
     .populate({
       path: "orderItems",
       populate: {
