@@ -2,14 +2,13 @@ require("dotenv").config();
 require("express-async-errors");
 
 //extra security packages
-// const helmet = require('helmet')
-const cors = require('cors')
-// const xss = require('xss-clean')
+const cors = require("cors");
 const rateLimiter = require("express-rate-limit");
 
 const express = require("express");
 const app = express();
 const authenticateUser = require("./middleware/authentication");
+const path = require("path");
 
 const productsRouter = require("./routes/products");
 const ordersRouter = require("./routes/order");
@@ -32,11 +31,13 @@ app.use(
   })
 );
 app.use(express.json());
-// extra packages
-// app.use(helmet())
-app.use(cors())
-app.options('*', cors())
-// app.use(xss())
+
+
+app.use(cors());
+app.options("*", cors());
+// Middleware to serve static files in public directory
+app.use("/public/uploads", express.static(path.join(__dirname, "public/uploads")));
+
 
 // routes
 app.use("/api/v1/user", usersRouter);
@@ -44,7 +45,6 @@ app.use("/api/v1/products", productsRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use(authenticateUser);
 app.use("/api/v1/orders", ordersRouter);
-
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

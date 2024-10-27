@@ -1,19 +1,7 @@
 const { BadRequestError } = require("../errors");
 const Category = require("../models/Category");
 const Product = require("../models/Product");
-const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "/public/uploads");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
-});
-
-const upload = multer({ storage: storage });
 
 const getProduct = async (req, res) => {
   let filter = {};
@@ -47,6 +35,12 @@ const createProduct = async (req, res) => {
     throw new NotFoundError(`No category with ${req.body.category} found`);
   }
 
+    const file = req.file;
+    if (!file) return res.status(400).send("No image in the request");
+
+  const fileName = req.file.filename // filename coming from the multer middleware. * standard way to get a file is file.name*
+  const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
+
 
     let product = new Product({
       name: req.body.name,
@@ -57,7 +51,7 @@ const createProduct = async (req, res) => {
       category: req.body.category,
       countInStock: req.body.countInStock,
       rating: req.body.rating,
-      image: req.body.image,
+      image: `${basePath}${fileName}`,
       numReviews: req.body.numReviews,
       isFeatured: req.body.isFeatured,
     });
